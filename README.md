@@ -1,6 +1,6 @@
 # AutoGPT-RabbitMQ
 
-This plugin allows you to communicate with your AutoGPT instance via microservice.
+This plugin allows you to communicate with your Auto-GPT instance via microservice. Only compatible with **Auto-GPT 0.3.1**
 
 ## 📚 Requirements
 
@@ -16,7 +16,7 @@ This plugin allows you to communicate with your AutoGPT instance via microservic
 
 ## ⚙️ Installation
 
-Follow these steps to configure the AutoGPT RabbitMQ Plugin:
+Follow these steps to configure the Auto-GPT RabbitMQ Plugin:
 
 1. Clone this Repository
 
@@ -81,7 +81,7 @@ Follow these steps to configure the AutoGPT RabbitMQ Plugin:
 
 ## ► Listen RabbitMQ on your client microservice
 
-1. Use the same env var, but reverse their value between them
+1. Use the same env var in your service, but reverse their value between `QUEUE_TO_RECEIVE_MESSAGE` & `QUEUE_TO_SEND_MESSAGE`
 
     ```sh
     RABBITMQ_HOST=localhost
@@ -89,28 +89,18 @@ Follow these steps to configure the AutoGPT RabbitMQ Plugin:
     QUEUE_TO_SEND_MESSAGE=service-to-autogpt
     ```
 
-2. First Auto-GPT talks to you, so listen to it
+2. First Auto-GPT talks to you, so listen to it via a consumer in a thread
 
-    ```python
-    connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
-    channel = connection.channel()
-    userReply = []
-    channel.queue_declare(queue=QUEUE_TO_RECEIVE_MESSAGE)
-    def callback(ch, method, properties, body):
-            print(Fore.MAGENTA + "User replied: %r" % body.decode())
-            userReply.append(body.decode())
-            if body.decode()['role'] == "USER_INPUT":
-                # Auto-GPT is asking you to reply, so kill this process and get back to your normal server tasks
-                channel.stop_consuming()
-    channel.basic_consume(queue=QUEUE_TO_RECEIVE_MESSAGE, on_message_callback=callback, auto_ack=True)
-    channel.start_consuming()
+    You service need to work the same way the plugin works with RabbitMQ via pika. It means you need to create a function of that kind [start_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L63) which will make a thread of this function [run_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L17).
 
-    print(userReply.pop(0)) # you can do whatever you want with messages received from Auto-GPT
-    ```
+    There are special kill_code which is send sometimes from on procuder to another consumer
+    - SIGTERM_FROM_SERVICE
+    - SIGTERM_FROM_AUTOGPT
 
-3. Finally Auto-GPT asks you to reply, so send a message
+    It allows to kill the consumer in a thread from the inside properly.
+    Just need to mirror this pattern on your service side.
 
-    ```python
-    channel.queue_declare(queue=QUEUE_TO_SEND_MESSAGE)
-    channel.basic_publish(exchange='', routing_key=QUEUE_TO_SEND_MESSAGE, body="Make a poem for my dog in a text file please")
-    ```
+3. Finally Auto-GPT asks you to reply, so send a message probably the easiet part :)
+
+    Once everything has been started properly, and is able to stop properly. Just send a message from your service to Auto-GPT like this function [messagesToSend](/rabbitmq_plugin/rabbitmq_plugin.py#L59) does from Auto-GPT to your service.
+    Just need to mirror this pattern on your service side.

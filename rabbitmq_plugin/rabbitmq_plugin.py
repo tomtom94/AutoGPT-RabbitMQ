@@ -21,8 +21,12 @@ def run_consumer(self):
     def callback(channel, method_frame, header_frame, body):
         delivery_tag = method_frame.delivery_tag
         channel.basic_ack(delivery_tag)
-        if body.decode() == "KILL_ALL":
-            self.messagesToSend(Message(role="SYSTEM", content="KILL_ALL"))
+        if body.decode() in ["SIGTERM_FROM_SERVICE", "SIGTERM_FROM_AUTOGPT"]:
+            if body.decode() == "SIGTERM_FROM_SERVICE":
+                self.close("SIGTERM_FROM_SERVICE")
+            channel1.stop_consuming()
+            channel1.queue_delete(self.get_queue_name('QUEUE_TO_RECEIVE_MESSAGE'))
+            connection1.close()
         else:
             userReply.append(body.decode())
     channel1.basic_consume(queue=QUEUE_TO_RECEIVE_MESSAGE, on_message_callback=callback)
@@ -63,17 +67,10 @@ class AutoGPT_RabbitMQ:
         print(Fore.GREEN + "RabbitMQ has just started consuming")
     
     def check_negative_response(self, response):
-        response.lower() in ["no", "nope", "n", "negative"]
+        return response.lower() in ["no", "nope", "n", "negative"]
     
-    def close(self):
-        if len(self.channel2.consumer_tags) > 0:
-            self.channel2.stop_consuming()
-        
-        # for thread in threads:
-        #     thread.join()
-
-        if self.channel2.is_open:
-            self.channel2.queue_delete(QUEUE_TO_SEND_MESSAGE)
-
-        if self.connection2.is_open:
-            self.connection2.close()
+    def close(self, kill_code):
+        self.messagesToSend(Message(role="SYSTEM", content=kill_code))
+        self.channel2.stop_consuming()
+        self.channel2.queue_delete(QUEUE_TO_SEND_MESSAGE)
+        self.connection2.close()

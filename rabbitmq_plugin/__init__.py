@@ -285,7 +285,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         reply = userReply.pop(0)
         
         if plugin.check_negative_response(reply):
-            plugin.close()
+            plugin.close("SIGTERM_FROM_AUTOGPT")
         
         return reply
     
