@@ -14,6 +14,20 @@ class Message(TypedDict):
 userReply = []
 threads = []
 
+def run_consumer(self):
+    connection1 = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
+    channel1 = connection1.channel()
+    channel1.queue_declare(queue=QUEUE_TO_RECEIVE_MESSAGE)
+    def callback(channel, method_frame, header_frame, body):
+        delivery_tag = method_frame.delivery_tag
+        channel.basic_ack(delivery_tag)
+        if body.decode() == "KILL_ALL":
+            self.messagesToSend(Message(role="SYSTEM", content="KILL_ALL"))
+        else:
+            userReply.append(body.decode())
+    channel1.basic_consume(queue=QUEUE_TO_RECEIVE_MESSAGE, on_message_callback=callback)
+    channel1.start_consuming()
+
 class AutoGPT_RabbitMQ:  
     def __init__(self):
         if self.required_info_set():
@@ -21,9 +35,7 @@ class AutoGPT_RabbitMQ:
         else:
             print(Fore.RED + "RabbitMQ plugin not loaded, because not all the environmental variables were set in the env configuration file.")
             os._exit(1)
-        self.connection1 = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
         self.connection2 = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
-        self.channel1 = self.connection1.channel()
         self.channel2 = self.connection2.channel()
         self.start_consumer()
     
@@ -44,21 +56,8 @@ class AutoGPT_RabbitMQ:
         self.channel2.queue_declare(queue=QUEUE_TO_SEND_MESSAGE)
         self.channel2.basic_publish(exchange='', routing_key=QUEUE_TO_SEND_MESSAGE, body=json.dumps(message))
     
-    def ack_message(self, delivery_tag):
-        if self.channel1.is_open:
-            self.channel1.basic_ack(delivery_tag)
-        else:
-            pass
-    
     def start_consumer(self):
-        self.channel1.queue_declare(queue=QUEUE_TO_RECEIVE_MESSAGE)
-        def callback(channel, method_frame, header_frame, body):
-            delivery_tag = method_frame.delivery_tag
-            cb = functools.partial(self.ack_message, delivery_tag)
-            self.connection1.add_callback_threadsafe(cb)
-            userReply.append(body.decode())
-        self.channel1.basic_consume(queue=QUEUE_TO_RECEIVE_MESSAGE, on_message_callback=callback)
-        t = threading.Thread(target = self.channel1.start_consuming)
+        t = threading.Thread(target = run_consumer, args=(self,))
         t.start()
         threads.append(t)
         print(Fore.GREEN + "RabbitMQ has just started consuming")
@@ -67,20 +66,14 @@ class AutoGPT_RabbitMQ:
         response.lower() in ["no", "nope", "n", "negative"]
     
     def close(self):
-        if len(self.channel1.consumer_tags) > 0:
-            self.channel1.stop_consuming()
         if len(self.channel2.consumer_tags) > 0:
             self.channel2.stop_consuming()
         
-        for thread in threads:
-            thread.join()
+        # for thread in threads:
+        #     thread.join()
 
-        if self.channel1.is_open:
-            self.channel1.queue_delete(QUEUE_TO_RECEIVE_MESSAGE)
         if self.channel2.is_open:
             self.channel2.queue_delete(QUEUE_TO_SEND_MESSAGE)
 
-        if self.connection1.is_open:
-            self.connection1.close()
         if self.connection2.is_open:
             self.connection2.close()
