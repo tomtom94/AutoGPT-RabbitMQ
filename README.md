@@ -95,7 +95,7 @@ Follow these steps to configure the Auto-GPT RabbitMQ Plugin:
 
     There are special kill_code which is send sometimes from one procuder to a consumer :
     - `SIGTERM_FROM_SERVICE`
-    - `SIGTERM_`FROM_AUTOGPT`
+    - `SIGTERM_FROM_AUTOGPT`
 
     It allows to kill the consumer in a thread from the inside properly.
     Just need to mirror this pattern on your service side.
