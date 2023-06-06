@@ -12,7 +12,6 @@ class Message(TypedDict):
     content: str
 
 userReply = []
-threads = []
 
 def run_consumer(self):
     connection1 = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
@@ -63,7 +62,6 @@ class AutoGPT_RabbitMQ:
     def start_consumer(self):
         t = threading.Thread(target = run_consumer, args=(self,))
         t.start()
-        threads.append(t)
         print(Fore.GREEN + "RabbitMQ has just started consuming")
     
     def check_negative_response(self, response):
