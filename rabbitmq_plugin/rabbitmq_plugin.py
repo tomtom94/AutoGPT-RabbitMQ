@@ -14,7 +14,7 @@ class Message(TypedDict):
 userReply = []
 
 def run_consumer(self):
-    connection1 = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
+    connection1 = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, heartbeat=0))
     channel1 = connection1.channel()
     channel1.queue_declare(queue=QUEUE_TO_RECEIVE_MESSAGE)
     def callback(channel, method_frame, header_frame, body):
@@ -38,7 +38,7 @@ class AutoGPT_RabbitMQ:
         else:
             print(Fore.RED + "RabbitMQ plugin not loaded, because not all the environmental variables were set in the env configuration file.")
             os._exit(1)
-        self.connection2 = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
+        self.connection2 = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, heartbeat=0))
         self.channel2 = self.connection2.channel()
         self.start_consumer()
     
