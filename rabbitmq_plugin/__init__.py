@@ -33,7 +33,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
     def on_response(self, response: str, *args, **kwargs) -> str:
         """This method is called when a response is received from the model."""
 
-        plugin.messagesToSend(Message(role="ON_RESPONSE", content=response))
+        plugin.send_message(Message(role="ON_RESPONSE", content=response))
         return response
 
     def can_handle_post_prompt(self) -> bool:
@@ -55,7 +55,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
             PromptGenerator: The prompt generator.
         """
         prompt.add_command("command_denied", "If you are told to run this command, or this command has been run, then the user has denied your request to run your command. Do not attempt to run the same command again.", {}, plugin.commandUnauthorized)
-        # plugin.messagesToSend(Message(role="POST_PROMPT", content=prompt.generate_prompt_string()))
+        # plugin.send_message(Message(role="POST_PROMPT", content=prompt.generate_prompt_string()))
         return prompt
 
     def can_handle_on_planning(self) -> bool:
@@ -95,7 +95,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
             str: The resulting response.
         """
         # It doesn't work because reponse attribute isn't always an valid json object give by autogpt
-        plugin.messagesToSend(Message(role="POST_PLANNING", content=json.dumps({"response": response})))
+        plugin.send_message(Message(role="POST_PLANNING", content=json.dumps({"response": response})))
         return response
 
     def can_handle_pre_instruction(self) -> bool:
@@ -115,7 +115,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         Returns:
             List[Message]: The resulting list of messages.
         """
-        plugin.messagesToSend(Message(role="PRE_INSTRUCTION", content=json.dumps({'messages': messages})))
+        plugin.send_message(Message(role="PRE_INSTRUCTION", content=json.dumps({'messages': messages})))
         return messages
 
     def can_handle_on_instruction(self) -> bool:
@@ -135,7 +135,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         Returns:
             Optional[str]: The resulting message.
         """
-        plugin.messagesToSend(Message(role="ON_INSTRUCTION", content=messages))
+        plugin.send_message(Message(role="ON_INSTRUCTION", content=messages))
         return messages[0]
 
     def can_handle_post_instruction(self) -> bool:
@@ -156,7 +156,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
             str: The resulting response.
         """
 
-        plugin.messagesToSend(Message(role="POST_INSTRUCTION", content=response))
+        plugin.send_message(Message(role="POST_INSTRUCTION", content=response))
         return response
 
     def can_handle_pre_command(self) -> bool:
@@ -179,7 +179,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         Returns:
             Tuple[str, Dict[str, Any]]: The command name and the arguments.
         """
-        plugin.messagesToSend(Message(role="PRE_COMMAND", content=json.dumps({'command_name': command_name, 'arguments': arguments})))
+        plugin.send_message(Message(role="PRE_COMMAND", content=json.dumps({'command_name': command_name, 'arguments': arguments})))
         return (command_name, arguments)
 
     def can_handle_post_command(self) -> bool:
@@ -200,7 +200,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         Returns:
             str: The resulting response.
         """
-        plugin.messagesToSend(Message(role="POST_COMMAND", content=response))
+        plugin.send_message(Message(role="POST_COMMAND", content=response))
         return response
 
     def can_handle_chat_completion(
@@ -277,7 +277,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         Returns:
             str: The user input.
         """
-        plugin.messagesToSend(Message(role="USER_INPUT", content=user_input))
+        plugin.send_message(Message(role="USER_INPUT", content=user_input))
         
         while(len(userReply) == 0):
             time.sleep(1)
@@ -303,4 +303,4 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         Args:
             message (str): The message to report.
         """
-        plugin.messagesToSend(Message(role="REPORT", content=message))
+        plugin.send_message(Message(role="REPORT", content=message))

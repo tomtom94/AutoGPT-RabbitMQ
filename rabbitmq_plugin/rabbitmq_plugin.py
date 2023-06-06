@@ -55,7 +55,7 @@ class AutoGPT_RabbitMQ:
     def commandUnauthorized(self, feedback):
         return "This command was not authorized by the user. Do not try it again. Here is the provided feedback: " + feedback
 
-    def messagesToSend(self, message: Message):
+    def send_message(self, message: Message):
         self.channel2.queue_declare(queue=QUEUE_TO_SEND_MESSAGE)
         self.channel2.basic_publish(exchange='', routing_key=QUEUE_TO_SEND_MESSAGE, body=json.dumps(message))
     
@@ -68,7 +68,7 @@ class AutoGPT_RabbitMQ:
         return response.lower() in ["no", "nope", "n", "negative"]
     
     def close(self, kill_code):
-        self.messagesToSend(Message(role="SYSTEM", content=kill_code))
+        self.send_message(Message(role="SYSTEM", content=kill_code))
         self.channel2.stop_consuming()
         self.channel2.queue_delete(QUEUE_TO_SEND_MESSAGE)
         self.connection2.close()

@@ -102,5 +102,5 @@ Follow these steps to configure the Auto-GPT RabbitMQ Plugin:
 
 3. Finally Auto-GPT asks you to reply, so send a message probably the easiet part :)
 
-    Once everything has been started properly, and is able to stop properly. Just send a message from your service to Auto-GPT like this function [messagesToSend](/rabbitmq_plugin/rabbitmq_plugin.py#L59) does from Auto-GPT to your service.
+    Once everything has been started properly, and is able to stop properly. Just send a message from your service to Auto-GPT like this function [send_message](/rabbitmq_plugin/rabbitmq_plugin.py#L59) does from Auto-GPT to your service.
     Just need to mirror this pattern on your service side.
