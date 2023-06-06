@@ -28,7 +28,7 @@ def run_consumer(self):
             connection1.close()
         else:
             userReply.append(body.decode())
-    channel1.basic_consume(queue=QUEUE_TO_RECEIVE_MESSAGE, on_message_callback=callback, exclusive=True)
+    channel1.basic_consume(queue=QUEUE_TO_RECEIVE_MESSAGE, on_message_callback=callback)
     channel1.start_consuming()
 
 class AutoGPT_RabbitMQ:  
@@ -40,7 +40,6 @@ class AutoGPT_RabbitMQ:
             os._exit(1)
         self.connection2 = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
         self.channel2 = self.connection2.channel()
-        self.channel2.queue_declare(queue=QUEUE_TO_SEND_MESSAGE)
         self.start_consumer()
     
     def required_info_set(self):
@@ -57,6 +56,7 @@ class AutoGPT_RabbitMQ:
         return "This command was not authorized by the user. Do not try it again. Here is the provided feedback: " + feedback
 
     def send_message(self, message: Message):
+        self.channel2.queue_declare(queue=QUEUE_TO_SEND_MESSAGE)
         self.channel2.basic_publish(exchange='', routing_key=QUEUE_TO_SEND_MESSAGE, body=json.dumps(message))
     
     def start_consumer(self):
