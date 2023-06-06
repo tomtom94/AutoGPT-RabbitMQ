@@ -20,7 +20,7 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         super().__init__()
         self._name = "AutoGPTRabbitMQ"
         self._version = "0.3.1"
-        self._description = "AutoGPT RabbitMQ Plugin: Interact with AutoGPT through a microservice connected to RabbitMQ."
+        self._description = "This plugin allows you to communicate with your Auto-GPT instance via microservice. Only compatible with Auto-GPT 0.3.1 and perhaps superior."
 
     def can_handle_on_response(self) -> bool:
         """This method is called to check that the plugin can

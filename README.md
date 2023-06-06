@@ -1,6 +1,6 @@
 # AutoGPT-RabbitMQ
 
-This plugin allows you to communicate with your Auto-GPT instance via microservice. Only compatible with **Auto-GPT 0.3.1**
+This plugin allows you to communicate with your Auto-GPT instance via microservice. Only compatible with **Auto-GPT 0.3.1** and perhaps superior.
 
 ## 📚 Requirements
 
