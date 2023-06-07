@@ -24,7 +24,7 @@ def run_consumer(self):
             if body.decode() == "SIGTERM_FROM_SERVICE":
                 self.close("SIGTERM_FROM_SERVICE")
             channel1.stop_consuming()
-            channel1.queue_delete(self.get_queue_name('QUEUE_TO_RECEIVE_MESSAGE'))
+            channel1.queue_delete(QUEUE_TO_RECEIVE_MESSAGE)
             connection1.close()
         else:
             userReply.append(body.decode())
