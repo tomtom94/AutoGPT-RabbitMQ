@@ -100,7 +100,11 @@ Follow these steps to configure the Auto-GPT RabbitMQ Plugin:
     {'role': 'REPORT', 'content': '...'}
     ```
 
-    Your service needs to work the same way the plugin works with RabbitMQ via pika. It means you need to create a function of that kind [start_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L62) which will make a thread of this function [run_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L16). With the same env vars but you remember we reversed their value.
+    Your service needs to work the same way the plugin works with RabbitMQ via pika.
+   
+   - It means you need to create a consumer of that kind [start_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L62) which will make a thread of this function [run_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L16). Insteand of this code [`userReply.append(body.decode())`][start_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L30) just use straight `body.decode()` to receive the prompt line by line, and do whatever you want with it.
+   - And then send message when you wanna reply to the prompt [send_message](/rabbitmq_plugin/rabbitmq_plugin.py#L58)
+   - With the same env vars but remember we reversed their value, so just copy past these 3 functions, that's it.
 
     There are special kill codes, sent sometimes from one procuder to a consumer, depends which process triggers the end :
     - `SIGTERM_FROM_SERVICE`
