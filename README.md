@@ -91,16 +91,16 @@ Follow these steps to configure the Auto-GPT RabbitMQ Plugin:
 
 2. First Auto-GPT talks to you, so listen to it via a consumer in a thread
 
-    You service needs to work the same way the plugin works with RabbitMQ via pika. It means you need to create a function of that kind [start_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L62) which will make a thread of this function [run_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L16).
+    Your service needs to work the same way the plugin works with RabbitMQ via pika. It means you need to create a function of that kind [start_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L62) which will make a thread of this function [run_consumer](/rabbitmq_plugin/rabbitmq_plugin.py#L16).
 
-    There are special kill_code which is send sometimes from one procuder to a consumer :
+    There are special kill codes, sent sometimes from one procuder to a consumer, depends which process triggers the end :
     - `SIGTERM_FROM_SERVICE`
     - `SIGTERM_FROM_AUTOGPT`
 
     It allows to kill the consumer in a thread from the inside properly.
     Just need to mirror this pattern on your service side.
 
-3. Finally Auto-GPT asks you to reply, so send a message probably the easiet part :)
+3. Finally Auto-GPT asks you to reply, so send a message in the queue for that
 
     Once everything has been started properly, and is able to stop properly. Just send a message from your service to Auto-GPT like this function [send_message](/rabbitmq_plugin/rabbitmq_plugin.py#L58) does from Auto-GPT to your service.
     Just need to mirror this pattern on your service side.
