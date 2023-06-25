@@ -54,8 +54,13 @@ class AutoGPTRabbitMQ(AutoGPTPluginTemplate):
         Returns:
             PromptGenerator: The prompt generator.
         """
-        prompt.add_command("command_denied", "If you are told to run this command, or this command has been run, then the user has denied your request to run your command. Do not attempt to run the same command again.", {}, plugin.commandUnauthorized)
-        # plugin.send_message(Message(role="POST_PROMPT", content=prompt.generate_prompt_string()))
+
+        prompt.add_resource("""
+        Able to convert any file into pdf.
+        """)
+
+        prompt.add_command("convert_file_to_pdf", "Convert file to pdf.", {}, plugin.command_convert_to_pdf)
+        plugin.send_message(Message(role="POST_PROMPT", content=prompt.generate_prompt_string()))
         return prompt
 
     def can_handle_on_planning(self) -> bool:

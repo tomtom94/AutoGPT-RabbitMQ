@@ -52,7 +52,7 @@ class AutoGPT_RabbitMQ:
         QUEUE_TO_SEND_MESSAGE = os.getenv("QUEUE_TO_SEND_MESSAGE")
         return RABBITMQ_HOST and CHAT_MESSAGES_ENABLED == "True" and QUEUE_TO_RECEIVE_MESSAGE and QUEUE_TO_SEND_MESSAGE
     
-    def commandUnauthorized(self, feedback):
+    def command_convert_to_pdf(self, feedback):
         return "This command was not authorized by the user. Do not try it again. Here is the provided feedback: " + feedback
 
     def send_message(self, message: Message):
