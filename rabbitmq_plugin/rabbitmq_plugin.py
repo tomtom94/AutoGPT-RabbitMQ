@@ -53,7 +53,7 @@ class AutoGPT_RabbitMQ:
         return RABBITMQ_HOST and CHAT_MESSAGES_ENABLED == "True" and QUEUE_TO_RECEIVE_MESSAGE and QUEUE_TO_SEND_MESSAGE
     
     def command_convert_to_pdf(self, feedback):
-        return "This command was not authorized by the user. Do not try it again. Here is the provided feedback: " + feedback
+        return "This command is been made just for fun, no action executed. Here is the provided feedback: " + feedback
 
     def send_message(self, message: Message):
         self.channel2.queue_declare(queue=QUEUE_TO_SEND_MESSAGE)
