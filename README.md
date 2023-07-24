@@ -2,7 +2,7 @@
 
 This plugin allows you to communicate with your Auto-GPT instance via microservice.
 
-You can try it right now for free https://chat.ai-autopilot.io
+You can try it right now for free https://ai-autopilot.io
 
 ## 📚 Requirements
 
